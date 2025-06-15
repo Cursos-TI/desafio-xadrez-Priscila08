@@ -1,113 +1,73 @@
 #include <stdio.h>
 
-#define TAM 10
-#define TAM_HAB 5
-#define AGUA 0
-#define NAVIO 3
-#define HABILIDADE 5
-
-// Função para exibir o tabuleiro com legenda
-void exibirTabuleiro(int tabuleiro[TAM][TAM]) {
-    printf("\nLegenda: 0 = Água | 3 = Navio | 5 = Habilidade\n\n");
-    for (int i = 0; i < TAM; i++) {
-        for (int j = 0; j < TAM; j++) {
-            printf("%d ", tabuleiro[i][j]);
-        }
-        printf("\n");
-    }
+// Função recursiva para mover a Torre para a Direita
+void moverTorre(int casas) {
+    if (casas == 0) return;
+    printf("Direita\n");
+    moverTorre(casas - 1);
 }
 
-// Função para aplicar matriz de habilidade ao tabuleiro
-void aplicarHabilidade(int tabuleiro[TAM][TAM], int habilidade[TAM_HAB][TAM_HAB], int origemLinha, int origemColuna) {
-    for (int i = 0; i < TAM_HAB; i++) {
-        for (int j = 0; j < TAM_HAB; j++) {
-            if (habilidade[i][j] == 1) {
-                // Calcula posição no tabuleiro
-                int linhaTab = origemLinha - TAM_HAB / 2 + i;
-                int colTab = origemColuna - TAM_HAB / 2 + j;
+// Função recursiva para mover a Rainha para a Esquerda
+void moverRainha(int casas) {
+    if (casas == 0) return;
+    printf("Esquerda\n");
+    moverRainha(casas - 1);
+}
 
-                // Verifica limites
-                if (linhaTab >= 0 && linhaTab < TAM && colTab >= 0 && colTab < TAM) {
-                    // Marca posição como área de habilidade
-                    if (tabuleiro[linhaTab][colTab] != NAVIO) {
-                        tabuleiro[linhaTab][colTab] = HABILIDADE;
-                    }
+// Função recursiva para o movimento vertical do Bispo
+void moverBispoVertical(int casas, int totalCasas) {
+    if (casas > totalCasas) return;
+
+    // Loop aninhado para simular movimento horizontal junto com o vertical
+    for (int i = 0; i < 1; i++) {
+        printf("Cima Direita\n");
+    }
+
+    moverBispoVertical(casas + 1, totalCasas);
+}
+
+// Movimento complexo do Cavalo: duas casas para cima e uma para a direita
+void moverCavalo() {
+    int i, j;
+
+    printf("\nMovimento do Cavalo (2 casas para cima e 1 para a direita):\n");
+
+    // Loop externo para direção vertical
+    for (i = 1; i <= 2; i++) {
+        if (i == 2) {
+            // Ao atingir a 2ª casa para cima, entra no movimento horizontal
+            for (j = 1; j <= 1; j++) {
+                if (j != 1) {
+                    continue;  // só entra se j == 1
                 }
+                printf("Direita\n");
+                break; // movimento completo
             }
         }
-    }
-}
-
-// Gera matriz Cone (triângulo para baixo)
-void gerarMatrizCone(int matriz[TAM_HAB][TAM_HAB]) {
-    for (int i = 0; i < TAM_HAB; i++) {
-        for (int j = 0; j < TAM_HAB; j++) {
-            matriz[i][j] = 0;
-            if (i >= j - TAM_HAB / 2 && i >= TAM_HAB / 2 - j) {
-                matriz[i][j] = 1;
-            }
-        }
-    }
-}
-
-// Gera matriz Cruz
-void gerarMatrizCruz(int matriz[TAM_HAB][TAM_HAB]) {
-    for (int i = 0; i < TAM_HAB; i++) {
-        for (int j = 0; j < TAM_HAB; j++) {
-            matriz[i][j] = 0;
-            if (i == TAM_HAB / 2 || j == TAM_HAB / 2) {
-                matriz[i][j] = 1;
-            }
-        }
-    }
-}
-
-// Gera matriz Octaedro (losango)
-void gerarMatrizOctaedro(int matriz[TAM_HAB][TAM_HAB]) {
-    for (int i = 0; i < TAM_HAB; i++) {
-        for (int j = 0; j < TAM_HAB; j++) {
-            matriz[i][j] = 0;
-            if (abs(i - TAM_HAB / 2) + abs(j - TAM_HAB / 2) <= TAM_HAB / 2) {
-                matriz[i][j] = 1;
-            }
-        }
+        printf("Cima\n");
     }
 }
 
 int main() {
-    int tabuleiro[TAM][TAM] = {0};
+    // Quantidade de casas por peça
+    int casasTorre = 5;
+    int casasBispo = 5;
+    int casasRainha = 8;
 
-    // --- Posiciona Navios (como no nível anterior) ---
+    // ---------------- TORRE ----------------
+    printf("Movimento da Torre (5 casas para a direita):\n");
+    moverTorre(casasTorre);
 
-    // Navio horizontal
-    for (int i = 0; i < 3; i++) tabuleiro[2][i + 2] = NAVIO;
+    // ---------------- BISPO ----------------
+    printf("\nMovimento do Bispo (5 casas na diagonal Cima Direita):\n");
+    moverBispoVertical(1, casasBispo);
 
-    // Navio vertical
-    for (int i = 0; i < 3; i++) tabuleiro[i + 4][5] = NAVIO;
+    // ---------------- RAINHA ----------------
+    printf("\nMovimento da Rainha (8 casas para a esquerda):\n");
+    moverRainha(casasRainha);
 
-    // Navio diagonal ↘
-    for (int i = 0; i < 3; i++) tabuleiro[i + 1][i + 1] = NAVIO;
-
-    // Navio diagonal ↙
-    for (int i = 0; i < 3; i++) tabuleiro[i + 5][8 - i] = NAVIO;
-
-    // --- Habilidade: Cone ---
-    int cone[TAM_HAB][TAM_HAB];
-    gerarMatrizCone(cone);
-    aplicarHabilidade(tabuleiro, cone, 6, 2); // origem no centro da habilidade
-
-    // --- Habilidade: Cruz ---
-    int cruz[TAM_HAB][TAM_HAB];
-    gerarMatrizCruz(cruz);
-    aplicarHabilidade(tabuleiro, cruz, 4, 7);
-
-    // --- Habilidade: Octaedro ---
-    int octaedro[TAM_HAB][TAM_HAB];
-    gerarMatrizOctaedro(octaedro);
-    aplicarHabilidade(tabuleiro, octaedro, 7, 7);
-
-    // --- Exibe o tabuleiro final ---
-    exibirTabuleiro(tabuleiro);
+    // ---------------- CAVALO ----------------
+    moverCavalo();
 
     return 0;
 }
